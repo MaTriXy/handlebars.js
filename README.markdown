@@ -110,6 +110,12 @@ Upgrading
 
 See [release-notes.md](https://github.com/wycats/handlebars.js/blob/master/release-notes.md) for upgrade notes.
 
+If you are using Handlebars in production, please regularly look for issues labeled 
+[possibly breaking](https://github.com/wycats/handlebars.js/issues?q=is%3Aopen+is%3Aissue+label%3A%22possibly+breaking%22).
+If this label is applied to an issue, it means that the requested change is probably not a breaking change,
+but since Handlebars is widely in use by a lot of people, chances are always there that it breaks somebodies build.
+
+
 Known Issues
 ------------
 
@@ -155,6 +161,7 @@ Handlebars in the Wild
 * [just-handlebars-helpers](https://github.com/leapfrogtechnology/just-handlebars-helpers) A fully tested lightweight package with common Handlebars helpers.
 * [incremental-bars](https://github.com/atomictag/incremental-bars) adds support for [incremental-dom](https://github.com/google/incremental-dom) as template target to Handlebars.
 * [apiDoc](https://github.com/apidoc/apidoc) apiDoc uses handlebars as parsing engine for api documentation view generation.
+* [handlebars-wax](https://github.com/shannonmoeller/handlebars-wax) The missing Handlebars API. Effortless registration of data, partials, helpers, and decorators using file-system globs, modules, and plain-old JavaScript objects.
 
 External Resources
 ------------------

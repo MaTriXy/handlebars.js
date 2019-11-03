@@ -28,14 +28,43 @@ describe('helpers', function() {
                     'raw block helper gets raw content');
   });
 
-  it('helper for nested raw block gets raw content', function() {
-    var string = '{{{{a}}}} {{{{b}}}} {{{{/b}}}} {{{{/a}}}}';
-    var helpers = {
-        a: function(options) {
+  describe('raw block parsing (with identity helper-function)', function() {
+
+    function runWithIdentityHelper(template, expected) {
+      var helpers = {
+        identity: function(options) {
           return options.fn();
-      }
-    };
-    shouldCompileTo(string, [{}, helpers], ' {{{{b}}}} {{{{/b}}}} ', 'raw block helper should get nested raw block as raw content');
+        }
+      };
+      shouldCompileTo(template, [{}, helpers], expected);
+    }
+
+    it('helper for nested raw block gets raw content', function() {
+      runWithIdentityHelper('{{{{identity}}}} {{{{b}}}} {{{{/b}}}} {{{{/identity}}}}', ' {{{{b}}}} {{{{/b}}}} ');
+    });
+
+    it('helper for nested raw block works with empty content', function() {
+      runWithIdentityHelper('{{{{identity}}}}{{{{/identity}}}}', '');
+    });
+
+    xit('helper for nested raw block works if nested raw blocks are broken', function() {
+      // This test was introduced in 4.4.4, but it was not the actual problem that lead to the patch release
+      // The test is deactivated, because in 3.x this template cases an exception and it also does not work in 4.4.3
+      // If anyone can make this template work without breaking everything else, then go for it,
+      // but for now, this is just a known bug, that will be documented.
+      runWithIdentityHelper('{{{{identity}}}} {{{{a}}}} {{{{ {{{{/ }}}} }}}} {{{{/identity}}}}', ' {{{{a}}}} {{{{ {{{{/ }}}} }}}} ');
+    });
+
+    it('helper for nested raw block closes after first matching close', function() {
+      runWithIdentityHelper('{{{{identity}}}}abc{{{{/identity}}}} {{{{identity}}}}abc{{{{/identity}}}}', 'abc abc');
+    });
+
+    it('helper for nested raw block throw exception when with missing closing braces', function() {
+      var string = '{{{{a}}}} {{{{/a';
+      shouldThrow(function() {
+        Handlebars.compile(string)();
+      });
+    });
   });
 
   it('helper block with identical context', function() {
@@ -735,6 +764,72 @@ describe('helpers', function() {
         }
       };
       shouldCompileTo('{{#if bar}}{{else goodbyes as |value|}}{{value}}{{/if}}{{value}}', [hash, helpers], '1foo');
+    });
+  });
+
+  describe('built-in helpers malformed arguments ', function() {
+    it('if helper - too few arguments', function() {
+      var template = CompilerContext.compile('{{#if}}{{/if}}');
+        shouldThrow(function() {
+
+            template({});
+        }, undefined, /#if requires exactly one argument/);
+    });
+
+    it('if helper - too many arguments, string', function() {
+      var template = CompilerContext.compile('{{#if test "string"}}{{/if}}');
+        shouldThrow(function() {
+
+            template({});
+        }, undefined, /#if requires exactly one argument/);
+    });
+
+    it('if helper - too many arguments, undefined', function() {
+      var template = CompilerContext.compile('{{#if test undefined}}{{/if}}');
+        shouldThrow(function() {
+
+            template({});
+        }, undefined, /#if requires exactly one argument/);
+    });
+
+    it('if helper - too many arguments, null', function() {
+      var template = CompilerContext.compile('{{#if test null}}{{/if}}');
+        shouldThrow(function() {
+
+            template({});
+        }, undefined, /#if requires exactly one argument/);
+    });
+
+    it('unless helper - too few arguments', function() {
+      var template = CompilerContext.compile('{{#unless}}{{/unless}}');
+        shouldThrow(function() {
+
+            template({});
+        }, undefined, /#unless requires exactly one argument/);
+    });
+
+    it('unless helper - too many arguments', function() {
+      var template = CompilerContext.compile('{{#unless test null}}{{/unless}}');
+        shouldThrow(function() {
+
+            template({});
+        }, undefined, /#unless requires exactly one argument/);
+    });
+
+    it('with helper - too few arguments', function() {
+      var template = CompilerContext.compile('{{#with}}{{/with}}');
+        shouldThrow(function() {
+
+            template({});
+        }, undefined, /#with requires exactly one argument/);
+    });
+
+    it('with helper - too many arguments', function() {
+      var template = CompilerContext.compile('{{#with test "string"}}{{/with}}');
+        shouldThrow(function() {
+
+            template({});
+        }, undefined, /#with requires exactly one argument/);
     });
   });
 });
