@@ -4,7 +4,8 @@
  * https://github.com/DefinitelyTyped/DefinitelyTyped/commits/1ce60bdc07f10e0b076778c6c953271c072bc894/types/handlebars/handlebars-tests.ts
  */
 
-import * as Handlebars from 'handlebars';
+import Handlebars from 'handlebars';
+import { HandlebarsTemplateDelegate, hbs } from 'handlebars';
 
 const context = {
   author: { firstName: 'Alan', lastName: 'Johnson' },
@@ -192,4 +193,70 @@ switch(allthings.type) {
     break;
   default:
     break;
+}
+
+function testParseWithoutProcessing() {
+  const parsedTemplate: hbs.AST.Program = Handlebars.parseWithoutProcessing('<p>Hello, my name is {{name}}.</p>', {
+    srcName: "/foo/bar/baz.hbs",
+  });
+
+  const parsedTemplateWithoutOptions: hbs.AST.Program = Handlebars.parseWithoutProcessing('<p>Hello, my name is {{name}}.</p>');
+}
+
+function testExceptionTypings() {
+  // Test exception constructor with a single argument - message.
+  let exception: Handlebars.Exception = new Handlebars.Exception('message');
+
+  // Fields
+  let message: string = exception.message;
+  let lineNumber: number = exception.lineNumber;
+  let column: number = exception.column;
+  let endLineNumber: number = exception.endLineNumber;
+  let endColumn: number = exception.endColumn;
+  let description = exception.description;
+  let name: string = exception.name;
+  let fileName: string = exception.fileName;
+  let stack: string | undefined = exception.stack;
+}
+
+function testExceptionWithNodeTypings() {
+  // Test exception constructor with both arguments.
+  const exception: Handlebars.Exception = new Handlebars.Exception('message', {
+    type: 'MustacheStatement',
+    loc: {
+      source: 'source',
+      start: { line: 1, column: 5 },
+      end: { line: 10, column: 2 }
+    }
+  });
+
+  // Fields
+  let message: string = exception.message;
+  let lineNumber: number = exception.lineNumber;
+  let column: number = exception.column;
+  let endLineNumber: number = exception.endLineNumber;
+  let endColumn: number = exception.endColumn;
+  let description = exception.description;
+  let name: string = exception.name;
+  let fileName: string = exception.fileName;
+  let stack: string | undefined = exception.stack;
+}
+
+function testProtoAccessControlControlOptions() {
+  Handlebars.compile('test')(
+    {},
+    {
+      allowedProtoMethods: { allowedMethod: true, forbiddenMethod: false },
+      allowedProtoProperties: { allowedProperty: true, forbiddenProperty: false },
+      allowProtoMethodsByDefault: true,
+      allowProtoPropertiesByDefault: false,
+      partials: {
+        link: '<a href="/people/{{id}}">{{name}}</a>'
+      }
+    }
+  );
+}
+
+function testHandlebarsVersion() {
+  let version: string = Handlebars.VERSION;
 }
